@@ -13,13 +13,15 @@ def call_forecast(lat: float, long: float):
     forecasts = requests.get(forecast_hourly).json()
     return forecasts['properties']
 def call_alert(lat:float,long:float):
-    api_url = f"https://api.weather.gov/points/{lat},{long}"
-    response = requests.get(api_url).json()
+    zone_url = f"https://api.weather.gov/points/{lat},{long}"
+    response = requests.get(zone_url).json()
+    zone_id = response['properties']['forecastZone'].split('/')[-1]
+    alerts_url = f"https://api.weather.gov/alerts/active/zone/{zone_id}"
+    alerts_response = requests.get(alerts_url).json()
     
-    
-    forecast_hourly = response['properties']['fireWeatherZone']
-    forecasts = requests.get(forecast_hourly).json()
-    return forecasts['properties']
+    #print(alerts_response['features']['headline'])
+    weather_headline = alerts_response['features'][0]['properties']['headline']
+    return weather_headline
 
 @app.get("/alert")
 def get_alerts(lat:float = Query(...) , long:float = Query(...)):
